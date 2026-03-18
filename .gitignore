@@ -47,7 +47,6 @@ logs/
 .cursorrules
 .claude
 .gemini
-artifacts/
 
 # System generated
 .system_generated/
