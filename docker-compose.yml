@@ -55,7 +55,7 @@ services:
       PORT: ${FRONTEND_PORT:-5173}
       BASE_PATH: ${BASE_PATH:-/}
       CRM_API_URL: ${CRM_API_URL:-http://crm-backend:8000}
-      VITE_API_BASE: ${VITE_API_BASE:-/crm-api}
+      VITE_API_BASE: ${VITE_API_BASE:-/api}
     ports:
       - "${FRONTEND_PORT:-5173}:${FRONTEND_PORT:-5173}"
     depends_on:
