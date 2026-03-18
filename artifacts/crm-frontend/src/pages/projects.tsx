@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Plus, Pencil, Trash2, Users, Cpu, ArrowRight } from "lucide-react";
+import { Plus, Pencil, Trash2, Users, Cpu, ArrowRight, Shield, User } from "lucide-react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -69,8 +69,8 @@ export default function ProjectsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Projects</h1>
-          <p className="text-sm text-muted-foreground mt-1">{projects.length} projects</p>
+          <h1 className="text-2xl font-bold text-white tracking-tight">Projects</h1>
+          <p className="text-sm text-white/70 mt-1 font-light">{projects.length} projects</p>
         </div>
         {isAdmin && (
           <Button onClick={openCreate} size="sm">
@@ -82,25 +82,26 @@ export default function ProjectsPage() {
       {projects.length === 0 ? (
         <Card>
           <CardContent className="py-12 text-center">
-            <p className="text-muted-foreground text-sm">No projects yet.</p>
+            <p className="text-white/60 text-sm">No projects yet.</p>
           </CardContent>
         </Card>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {projects.map((p) => (
-            <Card key={p.id} className="hover:shadow-sm transition-shadow">
+            <Card key={p.id} className="hover:bg-white/5 hover:border-white/25 transition-all duration-300">
               <CardContent className="p-4">
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <h3 className="font-semibold text-foreground truncate">{p.project_name}</h3>
+                      <h3 className="font-semibold text-white truncate">{p.project_name}</h3>
                       {p.my_role && (
-                        <Badge variant="secondary" className="capitalize text-[10px] px-1.5 py-0 h-4">
+                        <Badge variant={p.my_role} className="capitalize text-[10px] px-1.5 py-0 h-5">
+                          {p.my_role === "owner" ? <Shield className="w-3 h-3" /> : <User className="w-3 h-3" />}
                           {p.my_role}
                         </Badge>
                       )}
                     </div>
-                    <p className="text-xs font-mono text-muted-foreground mt-0.5">[{p.project_alias}]</p>
+                    <p className="text-xs font-mono text-white/50 mt-0.5">[{p.project_alias}]</p>
                   </div>
                   {isAdmin && (
                     <div className="flex items-center gap-1 ml-2 shrink-0">
@@ -118,7 +119,7 @@ export default function ProjectsPage() {
                     </div>
                   )}
                 </div>
-                <div className="flex items-center gap-3 text-xs text-muted-foreground mb-3">
+                <div className="flex items-center gap-3 text-xs text-white/60 mb-3">
                   <span className="flex items-center gap-1"><Users className="w-3.5 h-3.5" /> {p.member_count} members</span>
                   <span className="flex items-center gap-1"><Cpu className="w-3.5 h-3.5" /> {p.model_count} models</span>
                 </div>

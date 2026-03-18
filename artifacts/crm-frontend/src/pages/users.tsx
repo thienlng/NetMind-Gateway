@@ -78,8 +78,8 @@ export default function UsersPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Users</h1>
-          <p className="text-sm text-muted-foreground mt-1">{users.length} users total</p>
+          <h1 className="text-2xl font-bold text-white tracking-tight">Users</h1>
+          <p className="text-sm text-white/70 mt-1 font-light">{users.length} users total</p>
         </div>
         <Button onClick={openCreate} size="sm">
           <Plus className="w-4 h-4 mr-2" /> New User
@@ -91,40 +91,40 @@ export default function UsersPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-border">
-                  <th className="text-left px-4 py-3 font-medium text-muted-foreground">User</th>
-                  <th className="text-left px-4 py-3 font-medium text-muted-foreground">Email</th>
-                  <th className="text-left px-4 py-3 font-medium text-muted-foreground">Role</th>
-                  <th className="text-left px-4 py-3 font-medium text-muted-foreground">Created</th>
+                <tr className="border-b border-white/20 bg-white/5">
+                  <th className="text-left px-4 py-3 font-semibold text-white uppercase text-xs tracking-wide">User</th>
+                  <th className="text-left px-4 py-3 font-semibold text-white uppercase text-xs tracking-wide">Email</th>
+                  <th className="text-left px-4 py-3 font-semibold text-white uppercase text-xs tracking-wide">Role</th>
+                  <th className="text-left px-4 py-3 font-semibold text-white uppercase text-xs tracking-wide">Created</th>
                   <th className="px-4 py-3"></th>
                 </tr>
               </thead>
               <tbody>
                 {users.map((u) => (
-                  <tr key={u.id} className="border-b border-border last:border-0 hover:bg-muted/30 transition-colors">
+                  <tr key={u.id} className="border-b border-white/10 last:border-0 hover:bg-white/5 transition-colors">
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-2">
-                        <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center text-xs font-medium">
+                        <div className="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center text-xs font-medium text-white">
                           {u.full_name.charAt(0).toUpperCase()}
                         </div>
                         <div>
-                          <p className="font-medium">{u.full_name}</p>
-                          <p className="text-xs text-muted-foreground">@{u.username}</p>
+                          <p className="font-medium text-white">{u.full_name}</p>
+                          <p className="text-xs text-white/60">@{u.username}</p>
                         </div>
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-muted-foreground">{u.email}</td>
+                    <td className="px-4 py-3 text-white/80">{u.email}</td>
                     <td className="px-4 py-3">
                       <span className={`inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full ${
                         u.role === "admin"
-                          ? "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300"
-                          : "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300"
+                          ? "bg-purple-500/20 border border-purple-500/30 text-purple-300"
+                          : "bg-blue-500/20 border border-blue-500/30 text-blue-300"
                       }`}>
                         {u.role === "admin" ? <Shield className="w-3 h-3" /> : <User className="w-3 h-3" />}
                         {u.role}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-muted-foreground text-xs">
+                    <td className="px-4 py-3 text-white/60 text-xs">
                       {new Date(u.created_at).toLocaleDateString()}
                     </td>
                     <td className="px-4 py-3">

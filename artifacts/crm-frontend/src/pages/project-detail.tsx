@@ -130,8 +130,8 @@ export default function ProjectDetailPage() {
           </Button>
         </Link>
         <div className="flex-1">
-          <h1 className="text-2xl font-bold">{project.project_name}</h1>
-          <p className="text-sm font-mono text-muted-foreground">[{project.project_alias}]</p>
+          <h1 className="text-2xl font-bold text-white tracking-tight">{project.project_name}</h1>
+          <p className="text-sm font-mono text-white/70 font-light">[{project.project_alias}]</p>
         </div>
         {isProjectOwner && (
           <Button
@@ -171,24 +171,24 @@ export default function ProjectDetailPage() {
               ) : (
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-border">
-                      <th className="text-left px-4 py-3 font-medium text-muted-foreground">User</th>
-                      <th className="text-left px-4 py-3 font-medium text-muted-foreground">Role</th>
-                      <th className="text-left px-4 py-3 font-medium text-muted-foreground">Added</th>
+                    <tr className="border-b border-white/20 bg-white/5">
+                      <th className="text-left px-4 py-3 font-semibold text-white uppercase text-xs tracking-wide">User</th>
+                      <th className="text-left px-4 py-3 font-semibold text-white uppercase text-xs tracking-wide">Role</th>
+                      <th className="text-left px-4 py-3 font-semibold text-white uppercase text-xs tracking-wide">Added</th>
                       {isProjectOwner && <th className="px-4 py-3"></th>}
                     </tr>
                   </thead>
                   <tbody>
                     {members.map((mem) => (
-                      <tr key={mem.id} className="border-b border-border last:border-0 hover:bg-muted/30">
+                      <tr key={mem.id} className="border-b border-white/10 last:border-0 hover:bg-white/5">
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-2">
-                            <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center text-xs font-medium">
+                            <div className="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center text-xs font-medium text-white">
                               {mem.user?.full_name.charAt(0).toUpperCase() ?? "?"}
                             </div>
                             <div>
-                              <p className="font-medium">{mem.user?.full_name ?? "Unknown"}</p>
-                              <p className="text-xs text-muted-foreground">@{mem.user?.username}</p>
+                              <p className="font-medium text-white">{mem.user?.full_name ?? "Unknown"}</p>
+                              <p className="text-xs text-white/60">@{mem.user?.username}</p>
                             </div>
                           </div>
                         </td>
@@ -209,15 +209,15 @@ export default function ProjectDetailPage() {
                           ) : (
                             <span className={`inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full ${
                               mem.role === "owner"
-                                ? "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300"
-                                : "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300"
+                                ? "bg-purple-500/20 border border-purple-500/30 text-purple-300"
+                                : "bg-blue-500/20 border border-blue-500/30 text-blue-300"
                             }`}>
                               {mem.role === "owner" ? <Shield className="w-3 h-3" /> : <User className="w-3 h-3" />}
                               {mem.role}
                             </span>
                           )}
                         </td>
-                        <td className="px-4 py-3 text-xs text-muted-foreground">
+                        <td className="px-4 py-3 text-xs text-white/60">
                           {new Date(mem.added_at).toLocaleDateString()}
                         </td>
                         {isProjectOwner && (
@@ -259,19 +259,19 @@ export default function ProjectDetailPage() {
               ) : (
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-border">
-                      <th className="text-left px-4 py-3 font-medium text-muted-foreground">Model</th>
-                      <th className="text-left px-4 py-3 font-medium text-muted-foreground">Display Name</th>
-                      <th className="text-left px-4 py-3 font-medium text-muted-foreground">Added</th>
+                    <tr className="border-b border-white/20 bg-white/5">
+                      <th className="text-left px-4 py-3 font-semibold text-white uppercase text-xs tracking-wide">Model</th>
+                      <th className="text-left px-4 py-3 font-semibold text-white uppercase text-xs tracking-wide">Display Name</th>
+                      <th className="text-left px-4 py-3 font-semibold text-white uppercase text-xs tracking-wide">Added</th>
                       {isProjectOwner && <th className="px-4 py-3"></th>}
                     </tr>
                   </thead>
                   <tbody>
                     {projectModels.map((pm) => (
-                      <tr key={pm.id} className="border-b border-border last:border-0 hover:bg-muted/30">
-                        <td className="px-4 py-3 font-mono text-xs">{pm.model?.model_name ?? pm.model_id}</td>
-                        <td className="px-4 py-3 text-muted-foreground text-xs">{pm.model?.general_model_name ?? "—"}</td>
-                        <td className="px-4 py-3 text-xs text-muted-foreground">
+                      <tr key={pm.id} className="border-b border-white/10 last:border-0 hover:bg-white/5">
+                        <td className="px-4 py-3 font-mono text-xs text-white">{pm.model?.model_name ?? pm.model_id}</td>
+                        <td className="px-4 py-3 text-white/80 text-xs">{pm.model?.general_model_name ?? "—"}</td>
+                        <td className="px-4 py-3 text-xs text-white/60">
                           {new Date(pm.added_at).toLocaleDateString()}
                         </td>
                         {isProjectOwner && (

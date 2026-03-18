@@ -111,8 +111,8 @@ export default function KeysPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">API Keys</h1>
-          <p className="text-sm text-muted-foreground mt-1">{keys.length} keys total</p>
+          <h1 className="text-2xl font-bold text-white tracking-tight">API Keys</h1>
+          <p className="text-sm text-white/70 mt-1 font-light">{keys.length} keys total</p>
         </div>
         <Button onClick={() => { resetForm(); setOpen(true); }} size="sm">
           <Plus className="w-4 h-4 mr-2" /> New Key
@@ -124,28 +124,28 @@ export default function KeysPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-border">
-                  <th className="text-left px-4 py-3 font-medium text-muted-foreground">Alias</th>
-                  <th className="text-left px-4 py-3 font-medium text-muted-foreground">Key</th>
-                  <th className="text-left px-4 py-3 font-medium text-muted-foreground">Type</th>
-                  <th className="text-left px-4 py-3 font-medium text-muted-foreground">Spend</th>
-                  <th className="text-left px-4 py-3 font-medium text-muted-foreground">Created</th>
+                <tr className="border-b border-white/20 bg-white/5">
+                  <th className="text-left px-4 py-3 font-semibold text-white uppercase text-xs tracking-wide">Alias</th>
+                  <th className="text-left px-4 py-3 font-semibold text-white uppercase text-xs tracking-wide">Key</th>
+                  <th className="text-left px-4 py-3 font-semibold text-white uppercase text-xs tracking-wide">Type</th>
+                  <th className="text-left px-4 py-3 font-semibold text-white uppercase text-xs tracking-wide">Spend</th>
+                  <th className="text-left px-4 py-3 font-semibold text-white uppercase text-xs tracking-wide">Created</th>
                   <th className="px-4 py-3"></th>
                 </tr>
               </thead>
               <tbody>
                 {keys.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="px-4 py-8 text-center text-muted-foreground">No keys yet.</td>
+                    <td colSpan={6} className="px-4 py-8 text-center text-white/60">No keys yet.</td>
                   </tr>
                 ) : keys.map((k) => (
-                  <tr key={k.id} className="border-b border-border last:border-0 hover:bg-muted/30 transition-colors">
+                  <tr key={k.id} className="border-b border-white/10 last:border-0 hover:bg-white/5 transition-colors">
                     <td className="px-4 py-3">
-                      <p className="text-xs text-foreground max-w-[200px] truncate" title={k.key_alias}>{k.key_alias}</p>
+                      <p className="text-xs text-white max-w-[200px] truncate" title={k.key_alias}>{k.key_alias}</p>
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-1">
-                        <code className="text-xs font-mono bg-muted px-1.5 py-0.5 rounded">
+                        <code className="text-xs font-mono bg-white/10 px-1.5 py-0.5 rounded text-white">
                           {showKeys[k.id] ? k.key_token : k.key_display}
                         </code>
                         <button onClick={() => toggleShow(k.id)} className="text-muted-foreground hover:text-foreground">
@@ -154,15 +154,16 @@ export default function KeysPage() {
                       </div>
                     </td>
                     <td className="px-4 py-3">
-                      <span className={`text-xs px-2 py-0.5 rounded-full ${k.type === "service"
-                        ? "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300"
-                        : "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300"
+                      <span className={`text-xs px-2 py-0.5 rounded-full inline-flex items-center gap-1 ${
+                        k.type === "service"
+                          ? "bg-purple-500/20 border border-purple-500/30 text-purple-300"
+                          : "bg-blue-500/20 border border-blue-500/30 text-blue-300"
                         }`}>
                         {k.type}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-xs text-muted-foreground font-mono">${Number(k.spend).toFixed(4)}</td>
-                    <td className="px-4 py-3 text-xs text-muted-foreground">
+                    <td className="px-4 py-3 text-xs text-white/80 font-mono">${Number(k.spend).toFixed(4)}</td>
+                    <td className="px-4 py-3 text-xs text-white/70">
                       {new Date(k.created_at).toLocaleDateString()}
                     </td>
                     <td className="px-4 py-3">

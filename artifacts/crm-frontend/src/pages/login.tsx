@@ -30,19 +30,34 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
-      <Card className="w-full max-w-sm">
-        <CardHeader className="text-center">
-          <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-primary-foreground mx-auto mb-2">
-            <Brain className="w-6 h-6" />
+    <div 
+      className="min-h-screen flex items-center justify-center p-4"
+      style={{
+        backgroundImage: `linear-gradient(135deg, rgba(26, 38, 43, 0.8) 0%, rgba(66, 52, 40, 0.8) 100%), url('https://images.unsplash.com/photo-1504608524841-42fe6f032b4b?q=80&w=2565&auto=format&fit=crop')`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundAttachment: 'fixed',
+        fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
+      }}
+    >
+      <Card className="w-full max-w-sm bg-white/5 backdrop-blur-xl border-white/15 text-white shadow-2xl rounded-2xl relative overflow-hidden">
+        <CardHeader className="text-center space-y-4">
+          <div className="flex items-center justify-center gap-3 text-white font-semibold text-xl mb-2 tracking-tight">
+            <div className="w-8 h-8 rounded-lg bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-white shadow-sm">
+              <Brain className="w-5 h-5" />
+            </div>
+            <div className="w-px h-4 bg-white/40"></div>
+            <span className="font-light opacity-70 text-base">Viettel Networks</span>
           </div>
-          <CardTitle>NetMind Gateway</CardTitle>
-          <CardDescription>Sign in to your account</CardDescription>
+          <div>
+            <CardTitle className="text-2xl font-bold tracking-tight mb-2">NetMind Gateway</CardTitle>
+            <CardDescription className="text-white/70 font-light">Sign in to your account</CardDescription>
+          </div>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
-              <Label htmlFor="username">Username</Label>
+              <Label htmlFor="username" className="text-white/70 font-normal">Username</Label>
               <Input
                 id="username"
                 value={username}
@@ -50,10 +65,11 @@ export default function LoginPage() {
                 placeholder="admin"
                 required
                 autoFocus
+                className="bg-transparent border-white/15 text-white placeholder:text-white/40 focus-visible:ring-[#d4b895] focus-visible:border-[#d4b895] rounded-lg"
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password" className="text-white/70 font-normal">Password</Label>
               <Input
                 id="password"
                 type="password"
@@ -61,15 +77,20 @@ export default function LoginPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
                 required
+                className="bg-transparent border-white/15 text-white placeholder:text-white/40 focus-visible:ring-[#d4b895] focus-visible:border-[#d4b895] rounded-lg"
               />
             </div>
             {error && (
-              <p className="text-sm text-destructive bg-destructive/10 px-3 py-2 rounded-md">
+              <p className="text-sm text-red-400 bg-red-950/40 border border-red-500/20 px-3 py-2 rounded-md font-light">
                 {error}
               </p>
             )}
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "Signing in..." : "Sign in"}
+            <Button
+              type="submit"
+              className="w-full mt-4"
+              disabled={loading}
+            >
+              {loading ? "Signing in..." : "Discovery session"}
             </Button>
           </form>
         </CardContent>

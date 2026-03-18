@@ -64,8 +64,8 @@ export default function ModelsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Models</h1>
-          <p className="text-sm text-muted-foreground mt-1">{models.length} models available</p>
+          <h1 className="text-2xl font-bold text-white tracking-tight">Models</h1>
+          <p className="text-sm text-white/70 mt-1 font-light">{models.length} models available</p>
         </div>
         {isAdmin && (
           <Button onClick={() => syncMutation.mutate()} disabled={syncMutation.isPending} size="sm" variant="outline">
@@ -92,35 +92,35 @@ export default function ModelsPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-border">
-                  <th className="text-left px-4 py-3 font-medium text-muted-foreground">Model Name</th>
-                  <th className="text-left px-4 py-3 font-medium text-muted-foreground">Display Name</th>
-                  <th className="text-left px-4 py-3 font-medium text-muted-foreground">Input/Output Cost</th>
-                  <th className="text-left px-4 py-3 font-medium text-muted-foreground">TPM / RPM</th>
-                  <th className="text-left px-4 py-3 font-medium text-muted-foreground">Context</th>
+                <tr className="border-b border-white/20 bg-white/5">
+                  <th className="text-left px-4 py-3 font-semibold text-white uppercase text-xs tracking-wide">Model Name</th>
+                  <th className="text-left px-4 py-3 font-semibold text-white uppercase text-xs tracking-wide">Display Name</th>
+                  <th className="text-left px-4 py-3 font-semibold text-white uppercase text-xs tracking-wide">Input/Output Cost</th>
+                  <th className="text-left px-4 py-3 font-semibold text-white uppercase text-xs tracking-wide">TPM / RPM</th>
+                  <th className="text-left px-4 py-3 font-semibold text-white uppercase text-xs tracking-wide">Context</th>
                   {isAdmin && <th className="px-4 py-3"></th>}
                 </tr>
               </thead>
               <tbody>
                 {models.length === 0 ? (
                   <tr>
-                    <td colSpan={isAdmin ? 6 : 5} className="px-4 py-8 text-center text-muted-foreground">
+                    <td colSpan={isAdmin ? 6 : 5} className="px-4 py-8 text-center text-white/60">
                       No models yet. {isAdmin && "Sync from LiteLLM to get started."}
                     </td>
                   </tr>
                 ) : models.map((m) => (
-                  <tr key={m.id} className="border-b border-border last:border-0 hover:bg-muted/30 transition-colors">
+                  <tr key={m.id} className="border-b border-white/10 last:border-0 hover:bg-white/5 transition-colors">
                     <td className="px-4 py-3">
-                      <p className="font-mono text-xs font-medium text-foreground">{m.model_name}</p>
+                      <p className="font-mono text-xs font-medium text-white">{m.model_name}</p>
                     </td>
-                    <td className="px-4 py-3 text-muted-foreground">{m.general_model_name ?? <span className="text-muted-foreground/50 italic">—</span>}</td>
-                    <td className="px-4 py-3 text-xs text-muted-foreground font-mono">
+                    <td className="px-4 py-3 text-white/80">{m.general_model_name ?? <span className="text-white/40 italic">—</span>}</td>
+                    <td className="px-4 py-3 text-xs text-white/80 font-mono">
                       {m.input_cost_per_token != null ? `$${m.input_cost_per_token} / $${m.output_cost_per_token}` : "—"}
                     </td>
-                    <td className="px-4 py-3 text-xs text-muted-foreground">
+                    <td className="px-4 py-3 text-xs text-white/80">
                       {m.tpm != null ? `${m.tpm.toLocaleString()} / ${m.rpm}` : "—"}
                     </td>
-                    <td className="px-4 py-3 text-xs text-muted-foreground">
+                    <td className="px-4 py-3 text-xs text-white/80">
                       {m.context_length != null ? m.context_length.toLocaleString() : "—"}
                     </td>
                     {isAdmin && (
