@@ -10,12 +10,14 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
-      - "5432:5432"
+      - "${DB_PORT:-5432}:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-netmind} -d ${POSTGRES_DB:-netmind_db}"]
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - netmind_net
 
   crm-backend:
     build:
@@ -36,10 +38,12 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
     ports:
-      - "8000:8000"
+      - "${BACKEND_PORT:-8000}:8000"
     depends_on:
       postgres:
         condition: service_healthy
+    networks:
+      - netmind_net
 
   crm-frontend:
     build:
@@ -61,6 +65,12 @@ services:
         - action: sync
           path: ./artifacts/crm-frontend/src
           target: /app/artifacts/crm-frontend/src
+    networks:
+      - netmind_net
 
 volumes:
   postgres_data:
+
+networks:
+  netmind_net:
+    driver: bridge
