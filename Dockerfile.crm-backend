@@ -1,0 +1,20 @@
+# Python CRM Backend (FastAPI)
+FROM python:3.12-slim
+
+WORKDIR /app
+
+# Install uv
+RUN pip install uv
+
+# Copy Python project files
+COPY pyproject.toml uv.lock ./
+COPY artifacts/crm-backend/ ./artifacts/crm-backend/
+
+# Install dependencies
+RUN uv sync --frozen
+
+WORKDIR /app
+
+EXPOSE 8000
+
+CMD ["uv", "run", "uvicorn", "main:app", "--app-dir", "artifacts/crm-backend", "--host", "0.0.0.0", "--port", "8000", "--reload"]

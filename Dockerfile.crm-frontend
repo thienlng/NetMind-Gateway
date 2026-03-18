@@ -1,0 +1,30 @@
+# CRM Frontend (React + Vite)
+FROM node:24-slim
+
+WORKDIR /app
+
+# Install pnpm
+RUN corepack enable && corepack prepare pnpm@latest --activate
+
+# Copy workspace config files
+COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
+COPY tsconfig.json tsconfig.base.json ./
+
+# Copy lib packages (for api-client-react)
+COPY lib/ ./lib/
+
+# Copy crm-frontend
+COPY artifacts/crm-frontend/ ./artifacts/crm-frontend/
+
+# Install dependencies
+RUN pnpm install --frozen-lockfile
+
+# Build shared libs
+RUN pnpm run typecheck:libs
+
+WORKDIR /app/artifacts/crm-frontend
+
+EXPOSE ${FRONTEND_PORT:-5173}
+
+# Development server with hot reload
+CMD ["sh", "-c", "pnpm run dev"]

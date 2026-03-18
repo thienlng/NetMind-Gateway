@@ -1,0 +1,205 @@
+# CRM Service - Product Requirements Document (PRD)
+
+## 1. Tổng quan hệ thống
+
+### 1.1 Mô tả chung
+
+CRM là một service độc lập, có PostgreSQL riêng, đứng phía trên LiteLLM để quản lý người dùng, dự án, key và model. Người dùng CRM tương tác hoàn toàn qua CRM API — không bao giờ chạm trực tiếp vào LiteLLM hay master key.
+
+### 1.2 Kiến trúc hệ thống
+
+```
+[CRM Users] ──► [CRM Frontend]
+                     │
+                  [CRM Backend]  ──► [LiteLLM API]
+                     │
+               [CRM PostgreSQL]
+```
+
+**Luồng hoạt động:**
+1. Người dùng xác thực qua CRM Backend (không qua LiteLLM)
+2. CRM Backend quản lý users, projects, keys, models trong database riêng
+3. Khi cần tạo/xóa key hoặc sync models, CRM Backend gọi LiteLLM API với master key
+4. Master key của LiteLLM được bảo mật ở backend, không bao giờ expose ra frontend
+
+---
+
+## 2. Các thực thể chính
+
+### 2.1 Users (crm_users)
+
+CRM quản lý user riêng biệt, không liên quan đến LiteLLM.
+
+| Trường | Kiểu dữ liệu | Mô tả |
+|--------|--------------|-------|
+| `id` | UUID | Primary key |
+| `username` | VARCHAR(50) | Tên đăng nhập, unique |
+| `password_hash`|....
+| `email` | VARCHAR(255) | Email, unique |
+| `full_name` | VARCHAR(100) | Họ và tên |
+| `role` | ENUM | `admin` hoặc `user` |
+| `created_at` | TIMESTAMP | Thời gian tạo |
+| `updated_at` | TIMESTAMP | Thời gian cập nhật |
+
+**Roles:**
+- `admin`: Toàn quyền quản lý hệ thống, tạo project, quản lý users
+- `user`: Người dùng thông thường, có thể tham gia project và tạo key
+
+### 2.2 Models (crm_models)
+
+Danh sách model được sync từ LiteLLM `/model/info` API với thêm các trường manual.
+
+**Mapping từ LiteLLM API response:**
+
+| LiteLLM Field | CRM Field | Kiểu dữ liệu |
+|---------------|-----------|--------------|
+| `model_info.id` | `id` | UUID (PK) |
+| `model_name` | `model_name` | VARCHAR(255) |
+| `litellm_params.input_cost_per_token` | `input_cost_per_token` | DECIMAL |
+| `litellm_params.output_cost_per_token` | `output_cost_per_token` | DECIMAL |
+| `litellm_params.tpm` | `tpm` | INTEGER |
+| `litellm_params.rpm` | `rpm` | INTEGER |
+| `model_info.updated_at` | `litellm_updated_at` | TIMESTAMP |
+| `model_info.created_at` | `litellm_created_at` | TIMESTAMP |
+| `model_info.updated_by` | `litellm_updated_by` | VARCHAR(100) |
+| `model_info.created_by` | `litellm_created_by` | VARCHAR(100) |
+
+**Các trường manual (admin điền, default là null khi mới sync từ litellm sang):**
+
+| Trường | Kiểu dữ liệu | Mô tả |
+|--------|--------------|-------|
+| `general_model_name` | VARCHAR(100) | Tên hiển thị cho model |
+| `release_date` | DATE | Ngày release của model |
+| `context_length` | INTEGER | Độ dài context tối đa |
+
+**Ví dụ LiteLLM response:**
+```json
+{
+    "model_name": "Qwen/Qwen3-Coder-Next:codev",
+    "litellm_params": {
+        "input_cost_per_token": 0.0,
+        "output_cost_per_token": 0.0,
+        "tpm": 1024,
+        "rpm": 60,
+        "model": "Qwen/Qwen3-Coder-Next"
+    },
+    "model_info": {
+        "id": "1e28b9dd-dba0-442a-86f1-174676aa355d",
+        "created_at": "2026-03-14T06:23:11.156000+00:00",
+        "updated_at": "2026-03-14T13:55:30.128000+00:00",
+        "created_by": "default_user_id",
+        "updated_by": "default_user_id"
+    }
+}
+```
+
+### 2.3 Projects (crm_projects)
+
+Project là lớp chính để quản lý quyền truy cập và phân bổ resources.
+
+| Trường | Kiểu dữ liệu | Mô tả |
+|--------|--------------|-------|
+| `id` | UUID | Primary key |
+| `project_name` | VARCHAR(100) | Tên project (VD: "NetMind Gateway") |
+| `project_alias` | VARCHAR(50) | Alias cho key naming (VD: "netmind_gateway") |
+| `created_by` | UUID | FK → crm_users.id (admin tạo project) |
+| `updated_by` | UUID | FK → crm_users.id (admin cập nhật project, ON DELETE SET NULL) |
+| `created_at` | TIMESTAMP | Thời gian tạo |
+| `updated_at` | TIMESTAMP | Thời gian cập nhật |
+
+**Ràng buộc:**
+- `project_alias` phải là unique và format chuẩn (lowercase, underscore)
+
+### 2.4 Project Models (crm_project_models)
+
+Junction table quản lý models được phép sử dụng trong mỗi project.
+
+| Trường | Kiểu dữ liệu | Mô tả |
+|--------|--------------|-------|
+| `id` | UUID | Primary key |
+| `project_id` | UUID | FK → crm_projects.id (ON DELETE CASCADE) |
+| `model_id` | UUID | FK → crm_models.id (ON DELETE CASCADE) |
+| `added_at` | TIMESTAMP | Thời gian thêm model vào project |
+| `added_by` | UUID | FK → crm_users.id (ON DELETE SET NULL) |
+
+**Ràng buộc:**
+- Unique constraint trên `(project_id, model_id)` để tránh trùng lặp
+- Cascade delete: khi xóa project hoặc model, các records liên quan sẽ tự động bị xóa
+
+### 2.5 Project Members (crm_project_members)
+
+Quản lý thành viên trong project, bao gồm cả owners và members thông thường.
+
+| Trường | Kiểu dữ liệu | Mô tả |
+|--------|--------------|-------|
+| `id` | UUID | Primary key |
+| `project_id` | UUID | FK → crm_projects.id (ON DELETE CASCADE) |
+| `user_id` | UUID | FK → crm_users.id (ON DELETE CASCADE) |
+| `role` | ENUM | `owner` hoặc `member` |
+| `added_by` | UUID | FK → crm_users.id (ON DELETE SET NULL) |
+| `added_at` | TIMESTAMP | Thời gian thêm vào project |
+
+**Roles:**
+- `owner`: Toàn quyền quản lý project, thêm/xóa members, tạo service keys
+- `member`: Người dùng thông thường trong project, chỉ tạo được personal keys
+
+### 2.6 Keys (crm_keys)
+
+Keys luôn thuộc 1 user và 1 project.
+
+**Naming Convention:**
+```
+[project_alias][username]key_name    // Personal key
+[project_alias][service]key_name    // Service key
+```
+
+Ví dụ:
+- `[netmind_gateway][tamvlb]test_key_1` - Personal key
+- `[codev][service]api_key` - Service key
+
+**Key Types:**
+- `personal`: Key cá nhân cho user sử dụng
+- `service`: Key cho các service dùng chung trong project (chỉ project owner được tạo)
+
+**Mapping từ LiteLLM `/key/list` response:**
+
+| LiteLLM Field | CRM Field | Kiểu dữ liệu | Mô tả |
+|---------------|-----------|--------------|-------|
+| `token` | `key_token` | VARCHAR(64) | SHA-256 hash, unique identifier |
+| `key_alias` | `key_alias` | VARCHAR(100) | Human-readable alias |
+| `key_name` | `key_display` | VARCHAR(20) | Masked display name (sk-...XXX) |
+| `spend` | `spend` | DECIMAL | Số tiền đã sử dụng |
+| `max_budget` | `max_budget` | DECIMAL | Ngân sách tối đa |
+| `expires` | `expires` | TIMESTAMP | Thời gian hết hạn |
+| `models` | `models` | TEXT[] | Danh sách models được phép |
+| `created_at` | `created_at` | TIMESTAMP | Thời gian tạo |
+| `updated_at` | `updated_at` | TIMESTAMP | Thời gian cập nhật |
+| `created_by` | `litellm_created_by` | VARCHAR(100) | LiteLLM created_by |
+| `updated_by` | `litellm_updated_by` | VARCHAR(100) | LiteLLM updated_by |
+| `last_active` | `last_active` | TIMESTAMP | Lần hoạt động cuối |
+| `tpm_limit` | `tpm_limit` | INTEGER | Tokens per minute limit |
+| `rpm_limit` | `rpm_limit` | INTEGER | Requests per minute limit |
+
+**Các trường bổ sung trong CRM:**
+
+| Trường | Kiểu dữ liệu | Mô tả |
+|--------|--------------|-------|
+| `id` | UUID | Primary key (CRM generated) |
+| `user_id` | UUID | FK → crm_users.id (ON DELETE SET NULL), null cho service keys |
+| `project_id` | UUID | FK → crm_projects.id |
+| `type` | ENUM | `service` hoặc `personal` |
+| `created_by` | UUID | FK → crm_users.id (người tạo trong CRM) |
+
+**Lưu ý quan trọng về LiteLLM Key:**
+- `key` (sk-...): Chỉ được trả về **một lần** khi gọi `/key/generate`, không lưu trong database
+- `token` (SHA-256 hash): Được sử dụng làm identifier trong `/key/list` và `/key/info`
+- `/key/delete` sử dụng `token`
+curl 'http://localhost:4000/key/delete' \
+  -H 'Accept: */*' \
+  -H 'Authorization: Bearer sk-XgBRsDF99iN7n1lDAbNTcg' \
+  --data-raw '{"keys":["9d17c3c92ad675b480eb4d431c9fd36a31e059a8ef703fb77c9a122a2c35cf20"]}'
+- CRM cần lưu `key_token` để map với LiteLLM
+
+> **Note:** Khi regenerate key, một `key_token`, `key_display` mới được LiteLLM tạo ra. CRM phải cập nhật trường `key_token`, `key_display` tương ứng trong database.
+
+---

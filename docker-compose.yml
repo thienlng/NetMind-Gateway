@@ -1,0 +1,64 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: netmind-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-netmind}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-netmind_password}
+      POSTGRES_DB: ${POSTGRES_DB:-netmind_db}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-netmind} -d ${POSTGRES_DB:-netmind_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  crm-backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.crm-backend
+    container_name: netmind-crm-backend
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: ${DATABASE_URL:-postgresql://netmind:netmind_password@postgres:5432/netmind_db}
+      SESSION_SECRET: ${SESSION_SECRET:-changeme}
+      LITELLM_BASE_URL: ${LITELLM_BASE_URL:-}
+      LITELLM_MASTER_KEY: ${LITELLM_MASTER_KEY:-}
+      ADMIN_USERNAME: ${ADMIN_USERNAME:-admin}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@crm.local}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
+      ADMIN_FULL_NAME: ${ADMIN_FULL_NAME:-System Admin}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  crm-frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.crm-frontend
+    container_name: netmind-crm-frontend
+    restart: unless-stopped
+    environment:
+      PORT: ${FRONTEND_PORT:-5173}
+      BASE_PATH: ${BASE_PATH:-/}
+      CRM_API_URL: ${CRM_API_URL:-http://crm-backend:8000}
+    ports:
+      - "${FRONTEND_PORT:-5173}:${FRONTEND_PORT:-5173}"
+    depends_on:
+      - crm-backend
+    develop:
+      watch:
+        - action: sync
+          path: ./artifacts/crm-frontend/src
+          target: /app/artifacts/crm-frontend/src
+
+volumes:
+  postgres_data:
