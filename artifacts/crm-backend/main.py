@@ -8,7 +8,7 @@ from app.auth import hash_password
 from app.database import SessionLocal
 from app.config import ADMIN_USERNAME, ADMIN_EMAIL, ADMIN_PASSWORD, ADMIN_FULL_NAME
 
-API_PREFIX = os.getenv("API_PREFIX", "/crm-api")
+API_PREFIX = os.getenv("API_PREFIX", "/api")
 
 Base.metadata.create_all(bind=engine)
 

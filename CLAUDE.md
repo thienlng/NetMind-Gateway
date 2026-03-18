@@ -94,6 +94,18 @@ React 19 app using:
 
 - `DATABASE_URL`: PostgreSQL connection string (required by `@workspace/db`)
 
+### Frontend Runtime Configuration
+The frontend uses a `window.__ENV__` injection pattern instead of build-time variables (like `import.meta.env`).
+In production/Docker, this is handled by Nginx which intercepts the request for `env-config.js` and injects the runtime variables:
+```nginx
+# Server inline env-config.js at /crm/env-config.js
+location = /crm/env-config.js {
+    add_header Content-Type "application/javascript; charset=utf-8";
+    return 200 'window.__ENV__ = { "API_BASE": "${VITE_API_BASE}" };';
+}
+```
+In `api.ts`, API_BASE is resolved as: `window.__ENV__.API_BASE → import.meta.env.VITE_API_BASE → "/api"`. This enables building the Docker image once and configuring it dynamically per environment via `VITE_API_BASE` without rebuilding.
+
 ## Python Setup
 
 Python dependencies are managed with `uv`. The `pyproject.toml` at root defines the Python workspace with FastAPI, SQLAlchemy, and related packages.

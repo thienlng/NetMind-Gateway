@@ -4,27 +4,10 @@ import tailwindcss from "@tailwindcss/vite";
 import path from "path";
 import runtimeErrorOverlay from "@replit/vite-plugin-runtime-error-modal";
 
-const rawPort = process.env.PORT;
-
-if (!rawPort) {
-  throw new Error(
-    "PORT environment variable is required but was not provided.",
-  );
-}
-
-const port = Number(rawPort);
-
-if (Number.isNaN(port) || port <= 0) {
-  throw new Error(`Invalid PORT value: "${rawPort}"`);
-}
-
-const basePath = process.env.BASE_PATH;
-
-if (!basePath) {
-  throw new Error(
-    "BASE_PATH environment variable is required but was not provided.",
-  );
-}
+// PORT and BASE_PATH are only needed for local `pnpm run dev`.
+// In Docker, the external Nginx container handles routing — these are optional.
+const port = Number(process.env.PORT ?? "5173");
+const basePath = process.env.BASE_PATH ?? "/";
 
 export default defineConfig({
   base: basePath,
@@ -62,8 +45,10 @@ export default defineConfig({
     port,
     host: "0.0.0.0",
     allowedHosts: true,
+    // In Docker: the external Nginx container handles /api proxying.
+    // This proxy is only used for local `pnpm run dev` outside Docker.
     proxy: {
-      "/crm-api": {
+      "/api": {
         target: process.env.CRM_API_URL || "http://localhost:8000",
         changeOrigin: true,
       },

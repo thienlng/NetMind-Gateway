@@ -1,6 +1,10 @@
 import type { User, Model, Project, ProjectMember, ProjectModelEntry, Key, KeyCreateResponse } from "./types";
 
-const API_BASE = import.meta.env.VITE_API_BASE || "/crm-api";
+// Priority: window.__ENV__ (runtime, Docker) → import.meta.env (local dev) → "/api" (fallback)
+const API_BASE: string =
+  (window as any).__ENV__?.API_BASE ??
+  import.meta.env.VITE_API_BASE ??
+  "/api";
 
 export function getToken(): string | null {
   try {

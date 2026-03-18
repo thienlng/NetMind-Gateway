@@ -24,6 +24,7 @@ build/
 out/
 .next/
 *.tsbuildinfo
+postgres_data/
 
 # Docker
 docker-compose.override.yml

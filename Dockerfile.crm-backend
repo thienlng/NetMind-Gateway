@@ -15,6 +15,8 @@ RUN uv sync --frozen
 
 WORKDIR /app
 
+# Note: If BACKEND_PORT changes, the host port mapping in docker-compose changes,
+# but the container internal port remains 8000.
 EXPOSE 8000
 
 CMD ["uv", "run", "uvicorn", "main:app", "--app-dir", "artifacts/crm-backend", "--host", "0.0.0.0", "--port", "8000", "--reload"]

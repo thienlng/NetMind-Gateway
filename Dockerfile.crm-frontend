@@ -17,14 +17,16 @@ COPY lib/ ./lib/
 COPY artifacts/crm-frontend/ ./artifacts/crm-frontend/
 
 # Install dependencies
-RUN pnpm install --frozen-lockfile
+RUN pnpm install --no-frozen-lockfile
 
 # Build shared libs
 RUN pnpm run typecheck:libs
 
 WORKDIR /app/artifacts/crm-frontend
 
-EXPOSE ${FRONTEND_PORT:-5173}
+# PORT is the Vite dev server internal port (passed by docker-compose, default 5173)
+# This container is NOT exposed to the host — nginx handles external traffic
+EXPOSE ${PORT:-5173}
 
 # Development server with hot reload
 CMD ["sh", "-c", "pnpm run dev"]
