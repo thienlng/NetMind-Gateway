@@ -26,6 +26,7 @@ services:
     environment:
       DATABASE_URL: ${DATABASE_URL:-postgresql://netmind:netmind_password@postgres:5432/netmind_db}
       SESSION_SECRET: ${SESSION_SECRET:-changeme}
+      API_PREFIX: ${API_PREFIX:-/crm-api}
       LITELLM_BASE_URL: ${LITELLM_BASE_URL:-}
       LITELLM_MASTER_KEY: ${LITELLM_MASTER_KEY:-}
       ADMIN_USERNAME: ${ADMIN_USERNAME:-admin}
@@ -50,6 +51,7 @@ services:
       PORT: ${FRONTEND_PORT:-5173}
       BASE_PATH: ${BASE_PATH:-/}
       CRM_API_URL: ${CRM_API_URL:-http://crm-backend:8000}
+      VITE_API_BASE: ${VITE_API_BASE:-/crm-api}
     ports:
       - "${FRONTEND_PORT:-5173}:${FRONTEND_PORT:-5173}"
     depends_on:
