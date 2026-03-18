@@ -4,6 +4,7 @@ All functions handle the case where LITELLM_BASE_URL or LITELLM_MASTER_KEY is no
 they return stub data so the CRM can operate without LiteLLM for now.
 """
 import hashlib
+import logging
 import secrets
 from typing import Optional, List, Tuple
 from datetime import datetime
@@ -11,6 +12,8 @@ import httpx
 from sqlalchemy.orm import Session
 from app.config import LITELLM_BASE_URL, LITELLM_MASTER_KEY
 from app import models
+
+logger = logging.getLogger(__name__)
 
 
 def _headers() -> dict:
@@ -27,15 +30,20 @@ def sync_models_from_litellm(db: Session) -> Tuple[int, List[str]]:
         return 0, ["LiteLLM not configured (LITELLM_BASE_URL / LITELLM_MASTER_KEY not set)"]
 
     try:
-        resp = httpx.get(f"{LITELLM_BASE_URL}/model/info", headers=_headers(), timeout=30)
+        url = f"{LITELLM_BASE_URL}/model/info"
+        logger.info(f"Syncing models from LiteLLM: {url}")
+        resp = httpx.get(url, headers=_headers(), timeout=30)
         resp.raise_for_status()
         data = resp.json()
+        logger.debug(f"Received LiteLLM data: {data}")
     except Exception as e:
+        logger.error(f"Failed to sync models from LiteLLM: {e}")
         return 0, [str(e)]
 
     synced = 0
     errors = []
     raw_models = data.get("data", [])
+    logger.info(f"Found {len(raw_models)} models in LiteLLM response")
 
     for item in raw_models:
         try:
