@@ -28,6 +28,13 @@ class UserResponse(BaseModel):
     role: str
     created_at: datetime
     updated_at: datetime
+    # SSO profile fields
+    department_name: Optional[str] = None
+    department_fullname: Optional[str] = None
+    staff_code: Optional[str] = None
+    company_title: Optional[str] = None
+    phone: Optional[str] = None
+    auth_provider: str = "local"
 
     model_config = {"from_attributes": True}
 
@@ -35,6 +42,15 @@ class UserResponse(BaseModel):
 class LoginRequest(BaseModel):
     username: str
     password: str
+
+
+class SSOLoginRequest(BaseModel):
+    ticket: str
+
+
+class SSOConfigResponse(BaseModel):
+    sso_login_url: str
+    enabled: bool
 
 
 class TokenResponse(BaseModel):

@@ -13,12 +13,20 @@ class User(Base):
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     username = Column(String(50), unique=True, nullable=False, index=True)
-    password_hash = Column(String, nullable=False)
+    password_hash = Column(String, nullable=True)  # nullable for SSO-only users
     email = Column(String(255), unique=True, nullable=False)
     full_name = Column(String(100), nullable=False)
     role = Column(Enum("admin", "user", name="crm_user_role"), nullable=False, default="user")
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
+    # SSO profile fields
+    department_name = Column(String(255), nullable=True)
+    department_fullname = Column(Text, nullable=True)
+    department_id = Column(Integer, nullable=True)
+    staff_code = Column(String(50), nullable=True)
+    company_title = Column(String(255), nullable=True)
+    phone = Column(String(20), nullable=True)
+    auth_provider = Column(String(20), nullable=False, server_default="local")  # "local" or "sso"
 
 
 class Model(Base):

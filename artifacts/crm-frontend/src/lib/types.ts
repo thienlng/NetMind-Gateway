@@ -6,6 +6,13 @@ export interface User {
   role: "admin" | "user";
   created_at: string;
   updated_at: string;
+  // SSO profile fields
+  department_name: string | null;
+  department_fullname: string | null;
+  staff_code: string | null;
+  company_title: string | null;
+  phone: string | null;
+  auth_provider: "local" | "sso";
 }
 
 export interface Model {

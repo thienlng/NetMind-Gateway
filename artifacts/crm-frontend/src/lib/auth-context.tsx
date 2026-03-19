@@ -1,11 +1,12 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react";
-import { authApi, getToken, setToken, clearToken } from "./api";
+import { authApi, getToken, setToken, clearToken, APP_BASE } from "./api";
 import type { User } from "./types";
 
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
   login: (username: string, password: string) => Promise<void>;
+  loginWithSSO: (ticket: string) => Promise<void>;
   logout: () => void;
   isAdmin: boolean;
 }
@@ -38,15 +39,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(res.user);
   };
 
-  const logout = () => {
+  const loginWithSSO = async (ticket: string) => {
+    const res = await authApi.ssoLogin(ticket);
+    setToken(res.access_token);
+    setUser(res.user);
+  };
+
+  const logout = async () => {
+    // For SSO users, also redirect to auth.viettel.vn to invalidate the SSO session
+    const isSSOUser = user?.auth_provider === "sso";
     clearToken();
     setUser(null);
-    window.location.href = "/login";
+
+    if (isSSOUser) {
+      try {
+        const { logout_url } = await authApi.ssoLogoutUrl();
+        window.location.href = logout_url;
+      } catch {
+        window.location.href = `${APP_BASE}/login`;
+      }
+    } else {
+      window.location.href = `${APP_BASE}/login`;
+    }
   };
 
   return (
     <AuthContext.Provider
-      value={{ user, isLoading, login, logout, isAdmin: user?.role === "admin" }}
+      value={{ user, isLoading, login, loginWithSSO, logout, isAdmin: user?.role === "admin" }}
     >
       {children}
     </AuthContext.Provider>

@@ -1,5 +1,10 @@
 import type { User, Model, Project, ProjectMember, ProjectModelEntry, Key, KeyCreateResponse } from "./types";
 
+export const APP_BASE: string =
+  (window as any).__ENV__?.APP_BASE ??
+  import.meta.env.BASE_URL.replace(/\/$/, "") ??
+  "";
+
 // Priority: window.__ENV__ (runtime, Docker) → import.meta.env (local dev) → "/api" (fallback)
 const API_BASE: string =
   (window as any).__ENV__?.API_BASE ??
@@ -34,7 +39,7 @@ async function req<T>(path: string, options?: RequestInit): Promise<T> {
 
   if (res.status === 401) {
     clearToken();
-    window.location.href = "/login";
+    window.location.href = `${APP_BASE}/login`;
     throw new Error("Unauthorized");
   }
 
@@ -54,6 +59,13 @@ export const authApi = {
       body: JSON.stringify({ username, password }),
     }),
   me: () => req<User>("/auth/me"),
+  ssoConfig: () => req<{ sso_login_url: string; enabled: boolean }>("/auth/sso/config"),
+  ssoLogin: (ticket: string) =>
+    req<{ access_token: string; user: User }>("/auth/sso/login", {
+      method: "POST",
+      body: JSON.stringify({ ticket }),
+    }),
+  ssoLogoutUrl: () => req<{ logout_url: string }>("/auth/sso/logout-url"),
 };
 
 export const usersApi = {
