@@ -35,6 +35,12 @@ services:
       ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@crm.local}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:-admin123}
       ADMIN_FULL_NAME: ${ADMIN_FULL_NAME:-System Admin}
+      SSO_AUTH_URL: ${SSO_AUTH_URL:-}
+      SSO_LOGOUT_URL: ${SSO_LOGOUT_URL:-}
+      SSO_APP_CODE: ${SSO_APP_CODE:-}
+      SSO_SERVICE_URL: ${SSO_SERVICE_URL:-}
+      SSO_TICKET_API_URL: ${SSO_TICKET_API_URL:-}
+      SSO_TICKET_API_BEARER: ${SSO_TICKET_API_BEARER:-}
     extra_hosts:
       - "host.docker.internal:host-gateway"
     ports:
